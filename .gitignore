@@ -1,0 +1,7 @@
+build/.tts-cache/
+build/.segments/
+build/stills/
+build/render.log
+dist/
+node_modules/
+__pycache__/
