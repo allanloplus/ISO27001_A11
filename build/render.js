@@ -46,7 +46,7 @@ function run(cmd, a, opts = {}) {
 async function renderSegment(browser, i, f0, f1, file) {
   const page = await openPage(browser);
   const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
-    '-c:v', 'libx264', '-preset', 'medium', '-crf', '21', '-pix_fmt', 'yuv420p', '-r', String(FPS), file], { stdio: ['pipe', 'inherit', 'inherit'] });
+    '-c:v', 'libx264', '-preset', 'slow', '-tune', 'animation', '-crf', '27', '-pix_fmt', 'yuv420p', '-r', String(FPS), file], { stdio: ['pipe', 'inherit', 'inherit'] });
   const done = new Promise((res, rej) => ff.on('exit', c => c === 0 ? res() : rej(new Error('ffmpeg ' + c))));
   const t0 = Date.now();
   for (let f = f0; f < f1; f++) {
@@ -96,6 +96,6 @@ async function renderSegment(browser, i, f0, f1, file) {
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   await run('ffmpeg', ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', list,
     '-ss', String(from), '-t', String(to - from), '-i', path.join(ROOT, 'deck', 'audio', 'narration.mp3'),
-    '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', '-shortest', OUT]);
+    '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '96k', '-movflags', '+faststart', '-shortest', OUT]);
   console.log('完成：' + OUT);
 })().catch(e => { console.error(e); process.exit(1); });
