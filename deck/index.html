@@ -322,8 +322,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
 #start .go { display: flex; align-items: center; gap: 16px; padding: 20px 40px; border-radius: 999px; background: var(--sun); color: var(--ink); font-family: var(--f-disp); font-weight: 900; font-size: 34px; box-shadow: 0 8px 0 #b38b00; }
 #start .go span { font-size: 30px; }
 #start .hint { color: #fff; font-size: 16px; text-align: center; opacity: .9; }
-#controls { position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); translate: -50% 0; width: min(920px, calc(100% - 32px)); display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 16px; background: rgba(13,31,24,.88); color: #fff; z-index: 30; opacity: 0; transition: opacity .25s; }
-#controls.vis, .paused #controls { opacity: 1; }
+#controls { position: fixed; left: 50%; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); translate: -50% 0; width: min(920px, calc(100% - 32px)); display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 16px; background: rgba(255,255,255,.08); color: #fff; z-index: 30; }
 #controls button { flex: none; height: 36px; min-width: 40px; border: 0; border-radius: 10px; background: rgba(255,255,255,.12); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; font-family: var(--f-body); }
 #controls button:hover { background: rgba(255,255,255,.25); }
 #controls button:focus-visible, #start button:focus-visible, .ch:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
@@ -333,14 +332,14 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
 #ticks i { position: absolute; top: -3px; width: 2px; height: 16px; background: rgba(255,255,255,.35); }
 #time { flex: none; font-family: var(--f-num); font-size: 15px; font-variant-numeric: tabular-nums; min-width: 86px; text-align: center; }
 .render #controls, .render #start, .render #chapters { display: none !important; }
-#chapters { position: fixed; right: max(16px, calc(50% - 460px)); bottom: calc(66px + env(safe-area-inset-bottom, 0px)); width: min(380px, calc(100% - 32px)); max-height: min(560px, calc(100% - 100px)); overflow-y: auto; padding: 8px 8px 10px; border-radius: 16px; background: rgba(13,31,24,.96); color: #fff; z-index: 31; box-shadow: 0 12px 40px rgba(0,0,0,.4); }
+@media (max-width: 600px) { #controls { gap: 4px; padding: 6px 8px; } #controls button { min-width: 34px; height: 32px; padding: 0 6px; font-size: 13px; } #time, #rate { display: none; } #bar { min-width: 40px; } }
+#chapters { position: fixed; right: max(16px, calc(50% - 460px)); bottom: calc(64px + env(safe-area-inset-bottom, 0px)); width: min(380px, calc(100% - 32px)); max-height: min(560px, calc(100% - 100px)); overflow-y: auto; padding: 8px 8px 10px; border-radius: 16px; background: rgba(13,31,24,.96); color: #fff; z-index: 31; box-shadow: 0 12px 40px rgba(0,0,0,.4); }
 .ch-part { margin: 10px 10px 4px; font-family: var(--f-disp); font-weight: 900; font-size: 14px; color: #9fe3b8; letter-spacing: 1px; }
 .ch { display: flex; align-items: baseline; gap: 12px; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: #fff; text-align: left; font-family: var(--f-body); font-size: 15px; cursor: pointer; }
 .ch:hover { background: rgba(255,255,255,.1); }
 .ch.cur { background: rgba(0,216,134,.22); }
 .ch time { flex: none; min-width: 42px; font-family: var(--f-num); font-weight: 700; color: #9fe3b8; font-variant-numeric: tabular-nums; }
 .render * { transition: none !important; }
-@media (prefers-reduced-motion: reduce) { #controls { transition: none; } }
 </style>
 </head>
 <body class="paused">

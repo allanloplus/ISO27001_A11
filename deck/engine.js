@@ -294,8 +294,12 @@
 
   // ---------- 舞台縮放 ----------
   const stage = $('#stage');
+  // 播放模式在舞台下方保留控制列空間，避免遮住字幕
+  const BAR = RENDER ? 0 : 64;
   function fit() {
-    const k = Math.min(innerWidth / 1280, innerHeight / 720);
+    const h = innerHeight - BAR;
+    const k = Math.min(innerWidth / 1280, h / 720);
+    stage.style.top = (h / 2) + 'px';
     stage.style.transform = `translate(-50%, -50%) scale(${k})`;
   }
   addEventListener('resize', fit);
