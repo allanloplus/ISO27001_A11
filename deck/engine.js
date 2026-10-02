@@ -316,7 +316,6 @@
   const startEl = $('#start');
 
   const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
-  $('#ticks').innerHTML = slides.map(s => `<i style="left:${s.start / TL.total * 100}%"></i>`).join('');
 
   function seek(t) { audio.currentTime = clamp(t, 0, TL.total - 0.01); render(audio.currentTime); }
   function toggle() { audio.paused ? audio.play() : audio.pause(); }
@@ -328,7 +327,35 @@
     seek(slides[si].start + 0.01);
   }
 
-  startEl.addEventListener('click', () => { startEl.hidden = true; audio.play(); });
+  function begin() { startEl.hidden = true; audio.play(); }
+  $('#go').addEventListener('click', begin);
+
+  // ---------- 章節選單 ----------
+  const chapEl = $('#chapters');
+  const chapBtn = $('#chap');
+  let html = '', lastPart = -1;
+  slides.forEach((s, i) => {
+    if (s.part !== lastPart) { lastPart = s.part; html += `<div class="ch-part">${PARTS[s.part]}</div>`; }
+    html += `<button class="ch" type="button" data-i="${i}"><time>${fmt(s.start)}</time><span>${s.el ? s.el.dataset.title : s.id}</span></button>`;
+  });
+  chapEl.innerHTML = html;
+  const chBtns = $$('.ch', chapEl);
+  function showChapters(on) {
+    chapEl.hidden = !on;
+    chapBtn.setAttribute('aria-expanded', on);
+    ctl.classList.toggle('vis', on);
+    if (on) { const c = chapEl.querySelector('.ch.cur') || chBtns[0]; c.focus(); c.scrollIntoView({ block: 'nearest' }); }
+  }
+  chBtns.forEach(b => b.addEventListener('click', () => {
+    seek(slides[+b.dataset.i].start + 0.01);
+    showChapters(false);
+    begin();
+  }));
+  chapBtn.addEventListener('click', e => { e.stopPropagation(); showChapters(chapEl.hidden); });
+  $('#startchap').addEventListener('click', () => showChapters(true));
+  document.addEventListener('slidechange', e => chBtns.forEach((b, i) => b.classList.toggle('cur', i === e.detail)));
+  addEventListener('pointerdown', e => { if (!chapEl.hidden && !chapEl.contains(e.target) && e.target !== chapBtn && e.target.id !== 'startchap') showChapters(false); });
+  $('#ticks').innerHTML = slides.map(s => `<i style="left:${s.start / TL.total * 100}%" title="${s.el ? s.el.dataset.title : ''}"></i>`).join('');
   playBtn.addEventListener('click', toggle);
   $('#prev').addEventListener('click', () => goto(-1));
   $('#next').addEventListener('click', () => goto(1));
@@ -341,7 +368,7 @@
   $('#fs').addEventListener('click', () => {
     try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); } catch (_) {}
   });
-  stage.addEventListener('click', () => { if (startEl.hidden) toggle(); });
+  stage.addEventListener('click', e => { if (startEl.hidden && !startEl.contains(e.target)) toggle(); });
   bar.addEventListener('pointerdown', e => {
     const r = bar.getBoundingClientRect();
     const mv = ev => seek((ev.clientX - r.left) / r.width * TL.total);
@@ -350,19 +377,22 @@
     addEventListener('pointermove', mv); addEventListener('pointerup', up);
   });
   addEventListener('keydown', e => {
-    if (e.key === ' ' || e.key === 'k') { e.preventDefault(); if (!startEl.hidden) startEl.click(); else toggle(); }
+    if (e.key === 'Escape') { showChapters(false); return; }
+    if (!chapEl.hidden && (e.key === ' ' || e.key === 'Enter')) return;
+    if (e.key === 'm') { showChapters(chapEl.hidden); return; }
+    if (e.key === ' ' || e.key === 'k') { e.preventDefault(); if (!startEl.hidden) begin(); else toggle(); }
     else if (e.key === 'ArrowRight') goto(1);
     else if (e.key === 'ArrowLeft') goto(-1);
     else if (e.key === 'c') $('#cc').click();
     else if (e.key === 'f') $('#fs').click();
   });
-  audio.addEventListener('play', () => { playBtn.textContent = '❚❚'; document.body.classList.remove('paused'); });
+  audio.addEventListener('play', () => { startEl.hidden = true; playBtn.textContent = '❚❚'; document.body.classList.remove('paused'); });
   audio.addEventListener('pause', () => { playBtn.textContent = '▶'; document.body.classList.add('paused'); });
 
   let idle;
   addEventListener('pointermove', () => {
     ctl.classList.add('vis'); clearTimeout(idle);
-    idle = setTimeout(() => ctl.classList.remove('vis'), 2600);
+    idle = setTimeout(() => { if (chapEl.hidden) ctl.classList.remove('vis'); }, 2600);
   });
 
   // 從網址 #slide-id 開始

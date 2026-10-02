@@ -314,21 +314,31 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
 .confetti i { position: absolute; width: 12px; height: 18px; border-radius: 3px; }
 
 /* ---------- 播放器 ---------- */
-#start { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: rgba(13,31,24,.55); cursor: pointer; border: 0; padding: 0; font: inherit; }
+[hidden] { display: none !important; }
+#start { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: rgba(13,31,24,.55); }
+#start .start-in { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+#start button { border: 0; cursor: pointer; }
+#start .go2 { padding: 10px 26px; border-radius: 999px; background: #fff; color: var(--ink); font-family: var(--f-disp); font-weight: 900; font-size: 22px; box-shadow: 0 5px 0 #c8d8cf; }
 #start .go { display: flex; align-items: center; gap: 16px; padding: 20px 40px; border-radius: 999px; background: var(--sun); color: var(--ink); font-family: var(--f-disp); font-weight: 900; font-size: 34px; box-shadow: 0 8px 0 #b38b00; }
 #start .go span { font-size: 30px; }
-#start .hint { margin-top: 14px; color: #fff; font-size: 16px; text-align: center; opacity: .9; }
+#start .hint { color: #fff; font-size: 16px; text-align: center; opacity: .9; }
 #controls { position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); translate: -50% 0; width: min(920px, calc(100% - 32px)); display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 16px; background: rgba(13,31,24,.88); color: #fff; z-index: 30; opacity: 0; transition: opacity .25s; }
 #controls.vis, .paused #controls { opacity: 1; }
 #controls button { flex: none; height: 36px; min-width: 40px; border: 0; border-radius: 10px; background: rgba(255,255,255,.12); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; font-family: var(--f-body); }
 #controls button:hover { background: rgba(255,255,255,.25); }
-#controls button:focus-visible, #start:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+#controls button:focus-visible, #start button:focus-visible, .ch:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
 #controls button.off { opacity: .45; }
 #bar { position: relative; flex: 1; min-width: 60px; height: 10px; border-radius: 5px; background: rgba(255,255,255,.2); cursor: pointer; touch-action: none; }
 #fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: var(--g1); }
 #ticks i { position: absolute; top: -3px; width: 2px; height: 16px; background: rgba(255,255,255,.35); }
 #time { flex: none; font-family: var(--f-num); font-size: 15px; font-variant-numeric: tabular-nums; min-width: 86px; text-align: center; }
-.render #controls, .render #start { display: none !important; }
+.render #controls, .render #start, .render #chapters { display: none !important; }
+#chapters { position: fixed; right: max(16px, calc(50% - 460px)); bottom: calc(66px + env(safe-area-inset-bottom, 0px)); width: min(380px, calc(100% - 32px)); max-height: min(560px, calc(100% - 100px)); overflow-y: auto; padding: 8px 8px 10px; border-radius: 16px; background: rgba(13,31,24,.96); color: #fff; z-index: 31; box-shadow: 0 12px 40px rgba(0,0,0,.4); }
+.ch-part { margin: 10px 10px 4px; font-family: var(--f-disp); font-weight: 900; font-size: 14px; color: #9fe3b8; letter-spacing: 1px; }
+.ch { display: flex; align-items: baseline; gap: 12px; width: 100%; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: #fff; text-align: left; font-family: var(--f-body); font-size: 15px; cursor: pointer; }
+.ch:hover { background: rgba(255,255,255,.1); }
+.ch.cur { background: rgba(0,216,134,.22); }
+.ch time { flex: none; min-width: 42px; font-family: var(--f-num); font-weight: 700; color: #9fe3b8; font-variant-numeric: tabular-nums; }
 .render * { transition: none !important; }
 @media (prefers-reduced-motion: reduce) { #controls { transition: none; } }
 </style>
@@ -347,7 +357,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
   <div id="side"></div>
 
   <!-- ============ 開場 ============ -->
-  <section class="slide" data-id="cover" data-side="🤝||講師 Allan Lo × 助教 阿拉蕾">
+  <section class="slide" data-id="cover" data-title="開場" data-side="🤝||講師 Allan Lo × 助教 阿拉蕾">
     <div class="cover">
       <div class="eyebrow" data-c="s" data-fx="fade">ISO/IEC 27001:2022 附錄A｜控制屬性「運作流程」</div>
       <h1 class="cover-title" data-c="s" data-d="0.15" data-fx="pop">供應者<br><em>關係安全</em></h1>
@@ -367,7 +377,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="why" data-side="⚠️||為什麼要管供應者？">
+  <section class="slide" data-id="why" data-title="為什麼要管供應者" data-side="⚠️||為什麼要管供應者？">
     <h2 class="ttl" data-c="s">駭客的捷徑：不打你，打你的供應者</h2>
     <div class="inc-row">
       <div class="inc" data-c="1" data-fx="up"><span class="ic">🧨</span><div class="yr">2020</div><div class="nm">SolarWinds</div><div class="what">網管軟體更新檔被植入後門</div><div class="imp">近 18,000 個客戶下載含後門的更新版本</div></div>
@@ -389,7 +399,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="map" data-side="🗺️||運作流程：7 個控制措施">
+  <section class="slide" data-id="map" data-title="運作流程地圖" data-side="🗺️||運作流程：7 個控制措施">
     <h2 class="ttl" data-c="0">供應者關係安全 運作流程地圖</h2>
     <div class="map">
       <div class="colm hlable" data-hl="1">
@@ -412,7 +422,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
   </section>
 
   <!-- ============ 第一部分 ============ -->
-  <section class="slide" data-id="part1" data-side="🧭|Part 1|組織要做什麼？">
+  <section class="slide" data-id="part1" data-title="第一部分｜ISMS 作業重點" data-side="🧭|Part 1|組織要做什麼？">
     <div class="part">
       <div class="ring" data-c="s" data-fx="pop"><div class="num">1</div></div>
       <div>
@@ -423,7 +433,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="c519" data-side="🧩|5.19|供應者資訊安全程序">
+  <section class="slide" data-id="c519" data-title="5.19 供應者關係中之資訊安全" data-side="🧩|5.19|供應者資訊安全程序">
     <div class="hdr" data-c="s"><h2 class="ttl"><span class="badge">5.19</span>供應者關係中之資訊安全</h2><span class="chip">組織控制</span></div>
     <div class="life">
       <div class="st" data-c="0" data-d="4" data-fx="pop"><span class="big-emoji">🔎</span>選商評估</div><span class="ar" data-c="0" data-d="4.3" data-fx="fade">➜</span>
@@ -460,7 +470,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="c520" data-side="📝|5.20|供應者協議">
+  <section class="slide" data-id="c520" data-title="5.20 於供應者協議中闡明資訊安全" data-side="📝|5.20|供應者協議">
     <div class="hdr" data-c="s"><h2 class="ttl"><span class="badge">5.20</span>於供應者協議中闡明資訊安全</h2><span class="stamp" data-c="0" data-d="3.2" data-fx="stamp" style="margin-left:auto">口頭講的不算數！</span></div>
     <div class="clauses">
       <div class="cl hlable" data-hl="1" data-c="1" data-d="1.2" data-fx="left"><i>✓</i>資訊分類與保護要求</div>
@@ -484,7 +494,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="c66" data-side="🤫|6.6|供應者協議・保密">
+  <section class="slide" data-id="c66" data-title="6.6 機密性或保密協議" data-side="🤫|6.6|供應者協議・保密">
     <div class="hdr" data-c="s"><h2 class="ttl"><span class="badge">6.6</span>機密性或保密協議</h2><span class="chip">人員控制</span></div>
     <div class="nda">
       <div class="paper" data-c="0" data-d="1" data-fx="pop">
@@ -508,7 +518,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="c521" data-side="🔗|5.21|供應者資訊安全管理">
+  <section class="slide" data-id="c521" data-title="5.21 管理 ICT 供應鏈中之資訊安全" data-side="🔗|5.21|供應者資訊安全管理">
     <div class="hdr" data-c="s"><h2 class="ttl"><span class="badge">5.21</span>管理 ICT 供應鏈中之資訊安全</h2></div>
     <div class="sc">
       <div class="nd" data-c="0" data-d="2" data-fx="pop"><span class="big-emoji">🏢</span>組織<small>我們</small></div><span class="ar" data-c="0" data-d="2.4" data-fx="fade">⇠</span>
@@ -533,7 +543,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="c522" data-side="👀|5.22|供應者資訊安全管理">
+  <section class="slide" data-id="c522" data-title="5.22 供應者服務之監視、審查及變更管理" data-side="👀|5.22|供應者資訊安全管理">
     <div class="hdr" data-c="s"><h2 class="ttl"><span class="badge">5.22</span>供應者服務之監視、審查及變更管理</h2></div>
     <div class="sub-ttl" data-c="0" data-d="3" data-fx="left">簽完約不是結束，而是開始！</div>
     <div class="mon3">
@@ -555,7 +565,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="c523" data-side="☁️|5.23|供應者資訊安全管理">
+  <section class="slide" data-id="c523" data-title="5.23 使用雲端服務之資訊安全" data-side="☁️|5.23|供應者資訊安全管理">
     <div class="hdr" data-c="s"><h2 class="ttl"><span class="badge">5.23</span>使用雲端服務之資訊安全</h2><span class="chip y" data-c="0" data-d="2.2" data-fx="pop">✨ 2022 新增控制</span></div>
     <div class="cloud">
       <div class="card" data-c="1" data-d="5" data-fx="up">
@@ -590,7 +600,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="c830" data-side="💻|8.30|供應者資訊安全管理">
+  <section class="slide" data-id="c830" data-title="8.30 委外開發" data-side="💻|8.30|供應者資訊安全管理">
     <div class="hdr" data-c="s"><h2 class="ttl"><span class="badge">8.30</span>委外開發</h2><span class="chip">技術控制</span></div>
     <div class="tag-line" data-c="0" data-d="1.5" data-fx="left">程式不是自己寫的，責任還是自己的！</div>
     <div class="dev">
@@ -612,7 +622,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
   </section>
 
   <!-- ============ 第二部分 ============ -->
-  <section class="slide" data-id="part2" data-side="🕵️|Part 2|稽核員怎麼查？">
+  <section class="slide" data-id="part2" data-title="第二部分｜稽核查核重點" data-side="🕵️|Part 2|稽核員怎麼查？">
     <div class="part">
       <div class="ring b" data-c="s" data-fx="pop"><div class="num">2</div></div>
       <div>
@@ -623,7 +633,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="trail" data-side="🔍|Audit|稽核軌跡">
+  <section class="slide" data-id="trail" data-title="稽核軌跡" data-side="🔍|Audit|稽核軌跡">
     <h2 class="ttl" data-c="s">稽核軌跡：從清冊一路追到系統</h2>
     <div class="trail">
       <svg viewBox="0 0 904 300" aria-hidden="true" data-c="1" data-fx="draw" data-dur="7">
@@ -638,7 +648,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     <div class="verdict" data-c="3" data-fx="pop">⚖️ 文件寫得再漂亮，<mark>系統對不起來＝缺失</mark></div>
   </section>
 
-  <section class="slide" data-id="checklist" data-side="✅|Check|查核問題與證據">
+  <section class="slide" data-id="checklist" data-title="查核問題與證據" data-side="✅|Check|查核問題與證據">
     <h2 class="ttl" data-c="s">稽核員會問什麼？要看什麼證據？</h2>
     <table class="tbl">
       <thead data-c="0" data-fx="fade"><tr><th>控制</th><th>稽核員會問</th><th>要看的證據</th></tr></thead>
@@ -654,7 +664,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     <span class="stamp big-stamp" data-c="3" data-d="0.8" data-fx="stamp">沒有紀錄＝沒有做</span>
   </section>
 
-  <section class="slide" data-id="tricks" data-side="🎩|Tips|稽核員私房招數">
+  <section class="slide" data-id="tricks" data-title="稽核員私房招數" data-side="🎩|Tips|稽核員私房招數">
     <h2 class="ttl" data-c="s">稽核員的私房招數</h2>
     <div class="tricks">
       <div class="trick" data-c="0" data-d="3" data-fx="pop"><span class="no">1</span><span class="big-emoji">🔄</span><div><div class="k">交叉比對</div><div class="d">會計付款廠商清單 vs 供應者清冊<br>➜ 找出<b>漏網之魚</b></div></div></div>
@@ -666,7 +676,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
   </section>
 
   <!-- ============ 第三部分 ============ -->
-  <section class="slide" data-id="part3" data-side="🚨|Part 3|你中了幾個？">
+  <section class="slide" data-id="part3" data-title="第三部分｜常見的缺失" data-side="🚨|Part 3|你中了幾個？">
     <div class="part">
       <div class="ring r" data-c="s" data-fx="pop"><div class="num">3</div></div>
       <div>
@@ -677,7 +687,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="nc1" data-side="🚨|No.1–4|常見缺失（上）">
+  <section class="slide" data-id="nc1" data-title="常見缺失 No.1–4" data-side="🚨|No.1–4|常見缺失（上）">
     <h2 class="ttl" data-c="s">常見缺失排行榜（上）</h2>
     <div class="ncs">
       <div class="nc" data-c="0" data-fx="pop"><span class="rk">No.1</span><div class="k">供應者清冊不完整</div><div class="d">漏列雲端 SaaS 服務、遠端維護廠商</div><div class="ref"><span>5.19</span><span>5.23</span></div><span class="stamp" data-c="0" data-d="2" data-fx="stamp">缺失</span></div>
@@ -687,7 +697,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="nc2" data-side="🚨|No.5–8|常見缺失（下）">
+  <section class="slide" data-id="nc2" data-title="常見缺失 No.5–8" data-side="🚨|No.5–8|常見缺失（下）">
     <h2 class="ttl" data-c="s">常見缺失排行榜（下）</h2>
     <div class="ncs">
       <div class="nc" data-c="0" data-fx="pop"><span class="rk">No.5</span><div class="k">供應者評鑑流於形式</div><div class="d">每家都 90 分、沒有改善追蹤；只收證書不看範圍</div><div class="ref"><span>5.22</span></div><span class="stamp" data-c="0" data-d="2" data-fx="stamp">缺失</span></div>
@@ -698,7 +708,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     <div class="hope" data-c="5" data-fx="pop">💪 知道問題，就是改善的開始！</div>
   </section>
 
-  <section class="slide" data-id="ncwrite" data-side="✒️|NCR|缺失陳述寫法">
+  <section class="slide" data-id="ncwrite" data-title="缺失陳述寫法" data-side="✒️|NCR|缺失陳述寫法">
     <div class="hdr" data-c="s"><h2 class="ttl">缺失陳述怎麼寫？</h2>
       <div class="lab3"><span class="mk-f" data-c="0" data-d="3.6" data-fx="pop">事實</span><span class="mk-e" data-c="0" data-d="4.2" data-fx="pop">證據</span><span class="mk-b" data-c="0" data-d="4.8" data-fx="pop">依據</span></div>
     </div>
@@ -715,7 +725,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
   </section>
 
   <!-- ============ 總結 ============ -->
-  <section class="slide" data-id="quiz" data-side="🎯|Quiz|隨堂小測驗">
+  <section class="slide" data-id="quiz" data-title="隨堂小測驗" data-side="🎯|Quiz|隨堂小測驗">
     <h2 class="ttl" data-c="s">隨堂小測驗 ⭕❌</h2>
     <div class="quiz">
       <div class="qz" data-c="0" data-fx="left"><div class="qn">Q1</div><div><div class="q">廠商有 ISO 27001 證書，就可以不用評鑑？</div><div class="a" data-c="1" data-d="0.5" data-fx="fade">確認驗證範圍涵蓋我們的服務，且仍要依風險評鑑。</div></div><div class="mark x" data-c="1" data-fx="stamp">✗</div></div>
@@ -724,7 +734,7 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     </div>
   </section>
 
-  <section class="slide" data-id="summary" data-side="🎓|Recap|重點回顧">
+  <section class="slide" data-id="summary" data-title="重點回顧" data-side="🎓|Recap|重點回顧">
     <h2 class="ttl" data-c="s">重點回顧：1 + 1 + 1 + 3</h2>
     <div class="sum">
       <div class="card" data-c="0" data-d="1.5" data-fx="pop"><span class="big-emoji">📒</span><div><div class="k">一份分級的供應者清冊</div><div class="d">5.19 依風險分類分級</div></div></div>
@@ -739,12 +749,13 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
 
   <div id="cast"></div>
   <div id="sub"><span id="subwho">Allan 老師</span><span id="subtx"></span></div>
-  <button id="start" type="button" aria-label="開始上課">
-    <div>
-      <div class="go"><span>▶</span>開始上課</div>
-      <div class="hint">空白鍵：播放／暫停　←／→：上一頁／下一頁　C：字幕　F：全螢幕</div>
+  <div id="start">
+    <div class="start-in">
+      <button class="go" id="go" type="button"><span>▶</span>開始上課</button>
+      <button class="go2" id="startchap" type="button">☰ 選擇章節</button>
+      <div class="hint">空白鍵：播放／暫停　←／→：上一頁／下一頁　M：章節　C：字幕　F：全螢幕</div>
     </div>
-  </button>
+  </div>
 </div>
 
 <div id="controls">
@@ -755,8 +766,10 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
   <span id="time">0:00</span>
   <button id="rate" type="button" title="播放速度">1x</button>
   <button id="cc" type="button" title="字幕開關">CC</button>
+  <button id="chap" type="button" title="章節選單（M）" aria-expanded="false" aria-controls="chapters">☰ 章節</button>
   <button id="fs" type="button" title="全螢幕">⛶</button>
 </div>
+<div id="chapters" role="dialog" aria-label="章節選單" hidden></div>
 <audio id="narration" src="audio/narration.mp3" preload="auto"></audio>
 
 <script>
@@ -772,7 +785,6 @@ h2.ttl { margin: 0; display: flex; align-items: center; gap: 14px; font-family: 
     el.dataset.y0 = -r() * 100; el.dataset.v = 18 + r() * 22; el.dataset.rot = r() * 360; el.dataset.spin = 90 + r() * 260; el.dataset.sway = r() * 6;
     box.appendChild(el);
   }
-})();
 })();
 </script>
 <script src="timeline.js"></script>
