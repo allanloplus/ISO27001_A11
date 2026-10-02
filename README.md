@@ -14,6 +14,7 @@ Q版 **Allan Lo 講師**（台灣男聲配音）搭配 **助教阿拉蕾** 串�
 | 路徑 | 說明 |
 |---|---|
 | `video/供應者關係安全_動畫課程.mp4` | 1920×1080 成品影片（含配音） |
+| `index.html` | 入口頁，自動導向 `deck/index.html`（可直接用於 GitHub Pages） |
 | `deck/index.html` | 互動播放器：可暫停、跳頁、調速、開關字幕，可離線使用 |
 | `content/dialogue.json` | 講稿原始檔（修改台詞從這裡改） |
 | `content/講稿.md` | 含時間碼的講師講稿 |
