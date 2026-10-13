@@ -23,6 +23,7 @@ async function openPage(browser) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1.5 });
   await page.goto('file://' + DECK + '?render', { waitUntil: 'load' });
   await page.waitForFunction(() => window.renderAt && window.DECK);
+  await page.evaluate(() => DECK.ready);
   // 預先把每一頁完整顯示一次，確保所有中文字型分片都已下載
   const ends = await page.evaluate(() => DECK.slides.map(s => s.end - 0.3));
   for (const t of ends) {

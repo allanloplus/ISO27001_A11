@@ -122,48 +122,51 @@
   // ---------- 角色 ----------
   const cast = $('#cast');
   cast.innerHTML = `
-    <div class="char arale" id="arale"><div class="speed"></div><div class="emote"></div>${window.CHAR_SVG.arale}</div>
-    <div class="char allan" id="allan"><div class="emote"></div>${window.CHAR_SVG.allan}</div>`;
+    <div class="char arale" id="arale">${window.charHTML('arale')}</div>
+    <div class="char allan" id="allan">${window.charHTML('allan')}</div>`;
   const chars = {
-    A: { root: $('#allan'), seed: 0 },
-    R: { root: $('#arale'), seed: 1.7 }
+    A: { root: $('#allan'), seed: 0, def: window.CHARS.allan },
+    R: { root: $('#arale'), seed: 1.7, def: window.CHARS.arale }
   };
   Object.values(chars).forEach(c => {
-    c.svg = $('svg', c.root);
-    c.body = $$('.c-body', c.root);
-    c.head = $('.c-head', c.root);
-    c.eyes = $('.c-eyes', c.root);
+    c.spr = $('.spr', c.root);
     c.mo = $('.m-open', c.root);
     c.mc = $('.m-closed', c.root);
-    c.arm = $('.c-arm', c.root);
-    c.armL = $('.c-arm-l', c.root);
-    c.armR = $('.c-arm-r', c.root);
-    c.emote = $('.emote', c.root);
-    c.speed = $('.speed', c.root);
+    c.lids = $('.lids', c.root);
+    c.react = $('.react', c.root);
+    c.reactImg = $('.react img', c.root);
+    c.face = '';
   });
 
-  function emoteFor(who, line, other) {
+  // 預先載入全部表情圖，錄影時第一格就有圖
+  const preload = [];
+  Object.values(window.CHARS).forEach(d => [d.img, ...Object.values(d.faces).map(f => `img/${f}.png`)].forEach(src => {
+    const im = new Image(); im.src = src; preload.push(im.decode().catch(() => {}));
+  }));
+
+  // 對話時的表情（取自角色表情包）
+  function faceFor(who, line) {
     const tx = line.text;
+    if (line.who !== who) return '';
     if (who === 'R') {
-      if (/咻/.test(tx)) return '💨';
-      if (/中了五個/.test(tx)) return '💦';
-      if (/陰險/.test(tx)) return '😏';
-      if (/？/.test(tx)) return '❓';
-      if (/什麼|可怕|嗚哇/.test(tx)) return '‼️';
-      if (/懂了|筆記|重點|原來/.test(tx)) return '💡';
-      if (/哇|哈囉|謝謝/.test(tx)) return '✨';
+      if (/中了五個/.test(tx)) return 'cry';
+      if (/咻|謝謝/.test(tx)) return 'cheer';
+      if (/陰險|哈囉/.test(tx)) return 'laugh';
+      if (/什麼|可怕|嗚哇|哇/.test(tx)) return 'surprised';
+      if (/？/.test(tx)) return 'think';
+      if (/懂了|筆記|重點|原來/.test(tx)) return 'thumb';
+      if (/部分|測驗|第.題|珍珠/.test(tx)) return 'explain';
       return '';
     }
-    if (other && /陰險/.test(other.text)) return '💦';
-    if (/加薪/.test(tx)) return '💰';
-    if (/案例/.test(tx)) return '📋';
-    if (/答對|完全正確|說得太好/.test(tx)) return '👍';
-    if (/^錯！/.test(tx)) return '❌';
-    if (/^對！/.test(tx)) return '⭕';
+    if (/哈哈/.test(tx)) return 'laugh';
+    if (/加薪|答對|完全正確|說得太好|這叫專業/.test(tx)) return 'wink';
+    if (/^錯！|^不行！|^絕對不是|^當然要|殘酷/.test(tx)) return 'point';
+    if (/案例/.test(tx)) return 'think';
+    if (/^對！/.test(tx)) return 'smile';
     return '';
   }
 
-  function animChars(t, s, line, prevLine) {
+  function animChars(t, s, line) {
     ['A', 'R'].forEach(who => {
       const c = chars[who];
       const speaking = line && line.who === who && t < line.end;
@@ -171,43 +174,34 @@
       const flap = speaking && (Math.sin(t * 19) + Math.sin(t * 12.7 + 1.3) > -0.2);
       c.mo.style.display = flap ? '' : 'none';
       c.mc.style.display = flap ? 'none' : '';
-      const blink = (ph % 3.9) < 0.13;
-      c.eyes.style.transform = blink ? 'scaleY(0.12)' : '';
-      let y = Math.sin(ph * 1.7) * 2.5, rot = 0, x = 0;
+      c.lids.style.display = (ph % 3.9) < 0.13 ? '' : 'none';
+      let y = Math.sin(ph * 1.7) * 2.5, rot = Math.sin(ph * 0.9) * 0.6, x = 0, sq = 1;
       if (speaking) {
-        y = who === 'R' ? -Math.abs(Math.sin(t * 6.5)) * 9 : -Math.abs(Math.sin(t * 4.2)) * 5;
-        rot = Math.sin(t * 2.3) * 2.5;
+        const b = Math.abs(Math.sin(t * (who === 'R' ? 6.5 : 4.2)));
+        y = -b * (who === 'R' ? 9 : 5);
+        sq = 1 + b * 0.012;
+        rot = Math.sin(t * 2.3) * 1.8;
       }
-      if (c.arm) c.arm.style.transform = `rotate(${speaking ? Math.sin(t * 3.4) * 16 - 6 : Math.sin(ph) * 3}deg)`;
       let zoom = false;
-      if (who === 'R') {
-        let armA = speaking ? 25 + Math.sin(t * 7) * 18 : 4;
-        // 「咻～」：阿拉蕾張開雙手衝刺橫越畫面
-        if (speaking && /咻/.test(line.text)) {
-          const p = clamp((t - line.start) / (line.end - line.start + 0.4));
-          const wave = Math.sin(Math.PI * p);
-          x = -Math.pow(wave, 0.6) * 820;
-          rot = -14 * wave;
-          armA = 80;
-          zoom = wave > 0.15;
-        }
-        c.armL.style.transform = `rotate(${armA}deg)`;
-        c.armR.style.transform = `rotate(${-armA}deg)`;
+      // 「咻～」：阿拉蕾衝刺橫越畫面
+      if (who === 'R' && speaking && /咻/.test(line.text)) {
+        const p = clamp((t - line.start) / (line.end - line.start + 0.4));
+        const wave = Math.sin(Math.PI * p);
+        x = -Math.pow(wave, 0.6) * 820;
+        rot = -12 * wave;
+        zoom = wave > 0.15;
       }
       c.root.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg)`;
+      c.spr.style.transform = `scaleY(${sq})`;
       c.root.classList.toggle('talking', !!speaking);
       c.root.classList.toggle('zoom', zoom);
-      // 表情符號
-      let e = '';
-      let ep = 0;
-      if (line && t < line.end + 0.2) {
-        e = emoteFor(who, line, null);
-        if (line.who !== who) e = who === 'A' ? emoteFor('A', { text: '' }, line) : '';
-        ep = clamp((t - line.start - 0.2) / 0.35);
-      }
-      c.emote.textContent = e;
-      c.emote.style.opacity = e ? ep : 0;
-      c.emote.style.scale = e ? 0.4 + 0.6 * easeBack(ep) : 1;
+      // 表情泡泡
+      let f = '', ep = 0;
+      if (line && t < line.end + 0.2) { f = faceFor(who, line); ep = clamp((t - line.start - 0.2) / 0.35); }
+      if (f && f !== c.face) { c.reactImg.src = `img/${c.def.faces[f]}.png`; }
+      if (f) c.face = f;
+      c.react.style.opacity = f ? ep : 0;
+      c.react.style.scale = f ? 0.4 + 0.6 * easeBack(ep) : 0.4;
     });
   }
 
@@ -265,7 +259,7 @@
     let line = null, prev = null;
     for (const l of s.lines) { if (t >= l.start - 0.05) { prev = line; line = l; } }
     const active = line && t <= line.end + 0.25 ? line : null;
-    animChars(t, s, active, prev);
+    animChars(t, s, active);
 
     // 字幕
     let ch = null;
@@ -305,7 +299,7 @@
   addEventListener('resize', fit);
   fit();
 
-  window.DECK = { render, slides, TL, RENDER };
+  window.DECK = { render, slides, TL, RENDER, ready: Promise.all(preload) };
   window.renderAt = t => { render(t); };
 
   if (RENDER) { render(0); return; }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """產生線上發佈版（單一 HTML，字型改用 Google Fonts，JS 內嵌），輸出到 dist/。
-旁白音軌另以 audio/narration.mp3 一併發佈。"""
+旁白音軌 audio/narration.mp3 與角色圖 img/*.png 一併發佈。"""
 import os, re, shutil
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = os.path.join(ROOT, "deck"); OUT = os.path.join(ROOT, "dist")
@@ -18,4 +18,6 @@ body = "<script>document.body.classList.add('paused')</script>\n" + body
 os.makedirs(os.path.join(OUT, "audio"), exist_ok=True)
 open(os.path.join(OUT, "supplier-security.html"), "w", encoding="utf-8").write(head + body)
 shutil.copy(os.path.join(D, "audio", "narration.mp3"), os.path.join(OUT, "audio", "narration.mp3"))
+shutil.rmtree(os.path.join(OUT, "img"), ignore_errors=True)
+shutil.copytree(os.path.join(D, "img"), os.path.join(OUT, "img"))
 print("ok")
